@@ -1,0 +1,29 @@
+@use "bootstrap/scss/bootstrap";
+@use './partials/font_icon';
+@use './partials/reset';
+@use './partials/common';
+@use './partials/layout';
+@use './partials/utilities';
+
+body {
+    min-height: 100vh;
+}
+
+#app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #212529;
+}
+
+header {
+    flex-shrink: 0;
+}
+
+main {
+    flex-grow: 1;
+}
+
+footer {
+    flex-shrink: 0;
+}

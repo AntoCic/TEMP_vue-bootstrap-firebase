@@ -1,0 +1,13 @@
+{
+    "short_name": "TEMP",
+    "name": "Template",
+    "icons": [
+        {
+            "src": "/img/logo.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        }
+    ],
+    "theme_color": "#212529",
+    "display": "fullscreen"
+}
