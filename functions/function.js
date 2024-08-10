@@ -1,23 +1,164 @@
-// const {API_KEY} = process.env;
+import admin from 'firebase-admin';
 
-// funzione netlify per gestire le chiamate
-exports.handler = async function (event, context) {
-  // inizializzazione del mio router
-  await router.start(event);
+const {
+  FIREBASE_PROJECT_ID,
+  FIREBASE_PRIVATE_KEY_ID,
+  FIREBASE_PRIVATE_KEY,
+  FIREBASE_CLIENT_EMAIL,
+  FIREBASE_CLIENT_ID,
+  FIREBASE_AUTH_URI,
+  FIREBASE_TOKEN_URI,
+  FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+  FIREBASE_CLIENT_X509_CERT_URL,
+  FIREBASE_UNIVERSE_DOMAIN,
+  FIREBASE_DATABASE_URL,
+} = process.env;
 
-  // esempio rotta get senza path params
-  router.GET('', () => {
-    // il metodo setRes setta o aggiunge un parametro
-    router.setRes("HAI FATTO UNA CHIAMATA GET NETLIFY")
-  })
-
-  // esempio rotta post con parametro /test che legge un il body 
-  router.POST('test', async () => {
-    router.setRes(`HAI FATTO UNA CHIAMATA POST /test FUNCTION NETLIFY. msg: ${router.bodyParams.msg}`)
-  })
-
-  return router.sendRes()
+const serviceAccount = {
+  type: 'service_account',
+  project_id: FIREBASE_PROJECT_ID,
+  private_key_id: FIREBASE_PRIVATE_KEY_ID,
+  private_key: FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+  client_email: FIREBASE_CLIENT_EMAIL,
+  client_id: FIREBASE_CLIENT_ID,
+  auth_uri: FIREBASE_AUTH_URI,
+  token_uri: FIREBASE_TOKEN_URI,
+  auth_provider_x509_cert_url: FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+  client_x509_cert_url: FIREBASE_CLIENT_X509_CERT_URL,
+  universe_domain: FIREBASE_UNIVERSE_DOMAIN,
 };
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: FIREBASE_DATABASE_URL,
+});
+
+const db = admin.database();
+
+exports.handler = async function (event, context) {
+  await router.start(event);
+  // AUTH route
+  const user = await dbFirebase.auth(router.authToken);
+  if (user) {
+
+    await router.POST('g', async () => {
+      const names = await dbFirebase.get(router.pathParams);
+      router.setRes(names);
+    })
+
+    await router.POST('a', async () => {
+      let { id, ...data } = router.bodyParams
+      if (data) {
+        const item = await dbFirebase.add(data, router.pathParams, id);
+        router.setRes(item);
+      } else {
+        router.error();
+      }
+    })
+
+    await router.PUT('u', async () => {
+      const { id, ...data } = router.bodyParams
+      if (id && data) {
+        const item = await dbFirebase.update(id, data, router.pathParams);
+        router.setRes(item);
+      } else {
+        router.error();
+      }
+    })
+
+    await router.DELETE('d', async () => {
+      const id = router.bodyParams.id
+      if (id) {
+        const itemDelated = await dbFirebase.delete(id, router.pathParams);
+        router.setRes(itemDelated);
+      }
+    })
+  }
+  return router.sendRes()
+
+};
+
+const dbFirebase = {
+  idIndex: 0,
+  dbName: 'users',
+  user: null,
+  async auth(idToken) {
+    this.user = null;
+    if (!this.idIndex) {
+      this.idIndex = Math.floor(Math.random() * 100);
+    }
+    try {
+      const decodedToken = await admin.auth().verifyIdToken(idToken);
+      this.user = await admin.auth().getUser(decodedToken.uid);
+      return this.user
+    } catch (error) {
+      router.error(401, error = 'Unauthorized')
+      return null
+    }
+  },
+  async get(pathParams = []) {
+    let dbPath = '';
+    if (pathParams.length >= 2) {
+      for (let index = 1; index < pathParams.length; index++) {
+        dbPath += '/' + pathParams[index];
+      }
+    }
+
+    const snapshot = await db.ref(`${this.dbName}/${this.user.uid + dbPath}`).once('value');
+    return snapshot.val() || {};
+  },
+  async add(data, pathParams = [], id = false) {
+    let dbPath = '';
+    if (pathParams.length >= 2) {
+      for (let index = 1; index < pathParams.length; index++) {
+        dbPath += '/' + pathParams[index];
+      }
+    }
+    let newId;
+    if (id === true) {
+      newId = '/' + this.newId();
+    } else if (id === false) {
+      newId = ''
+    } else {
+      newId = '/' + id
+    }
+    await db.ref(`${this.dbName}/${this.user.uid + dbPath + newId}`).set(data);
+    if (newId !== '') {
+      return { [newId.substring(1)]: data };
+    }
+    return data;
+  },
+
+  async update(id, data, pathParams = []) {
+    let dbPath = '';
+    if (pathParams.length >= 2) {
+      for (let index = 1; index < pathParams.length; index++) {
+        dbPath += '/' + pathParams[index];
+      }
+    }
+    await db.ref(`${this.dbName}/${this.user.uid + dbPath}`).update({ [id]: data });
+    return { [id]: data };
+  },
+
+  async delete(id, pathParams = []) {
+    let dbPath = '';
+    if (pathParams.length >= 2) {
+      for (let index = 1; index < pathParams.length; index++) {
+        dbPath += '/' + pathParams[index];
+      }
+    }
+
+    await db.ref(`${this.dbName}/${this.user.uid + dbPath}/${id}`).remove();
+    return { deleted: id };
+  },
+  newId() {
+    let newId = this.idIndex.toString(36)
+    this.idIndex++;
+    newId += Math.random().toString(36).substring(2, 7) // stringa casuale
+    newId += "-" + Date.now().toString(36) // converte in base 36
+    return newId;
+  }
+}
 
 
 

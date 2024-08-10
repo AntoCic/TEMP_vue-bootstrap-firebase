@@ -19,13 +19,24 @@ export default {
       store,
     }
   },
+  watch: {
+    'store.user.isLogged'(newLog, oldLog) {
+      if (newLog !== oldLog) {
+        if (newLog) {
+          if (this.$route.name === 'user') {
+            this.$router.push({ name: 'home' });
+          }
+        }
+      }
+    }
+  },
   mounted() {
     this.store.start();
     this.store.loading.on("Caricamento di un secondo");
     setTimeout(() => {
       this.store.loading.off();
     }, 1000);
-  }
+  },
 }
 
 </script>

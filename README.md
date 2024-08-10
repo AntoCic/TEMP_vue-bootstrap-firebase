@@ -1,11 +1,83 @@
-# Template base Vue, Bootstrap, sass
-CMD to start
-```sh
-npm i
-npm run dev
+# Template base Vue, Bootstrap, sass, firebase
+
+### Guida per Iniziare con Firebase
+
+Questa guida ti aiuterà a configurare Firebase nel tuo progetto, includendo la creazione di un database in tempo reale, l'impostazione dell'autenticazione, e il recupero delle chiavi necessarie per l'integrazione.
+
+---
+
+#### 1. Creazione del Progetto su Firebase
+
+1. Vai su [Firebase Console](https://console.firebase.google.com).
+2. Esegui l'accesso con il tuo account Google o registrati se non hai un account.
+3. Crea un nuovo progetto seguendo le istruzioni sullo schermo.
+
+---
+
+#### 2. Configurazione del Realtime Database
+
+1. Dopo aver creato il progetto, accedi alla sezione **Realtime Database**.
+2. Crea un nuovo database.
+3. Modifica le regole di accesso cliccando su **Regole** e inserisci il seguente codice JSON:
+
+```json
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null",
+    "users": {
+      "$userId": {
+        ".read": "$userId === auth.uid",
+        ".write": "$userId === auth.uid"
+      }
+    }
+  }
+}
 ```
 
-> **NOTA:** Se non hai interesse nell'utilizzo di Netlify Functions, puoi cancellare il file `netlify.toml` e la cartella `functions`, e fermarti di leggere qui. Se vuoi comunque pubblicare il sito su Netlify, puoi farlo seguendo solo la "Guida per pubblicare un progetto su Netlify" qui sotto.
+#### 3. Impostazione dei Provider di Autenticazione
+
+1. Torna alla sezione **Autenticazione**.
+2. Clicca su **Inizia** o direttamente su **Email/Password** e abilita questa modalità di autenticazione.
+3. Aggiungi un altro provider di autenticazione cliccando su **Aggiungi provider** e seleziona **Google**.
+   - Abilita Google come provider.
+   - Inserisci un nome a tua scelta (IMPORTANTE).
+   - Seleziona la tua email dal menu.
+   - Salva le impostazioni.
+
+---
+
+#### 4. Recupero delle Chiavi Necessarie
+
+1. Clicca sull'icona della rotella in alto a destra e seleziona **Impostazioni progetto**.
+2. Vai su **Account di servizio** e genera una nuova chiave cliccando sul pulsante apposito.
+3. Una volta scaricato il file, crea un file `.env` eseguendo il seguente comando nel terminale del progetto:
+
+```sh
+cp .env.example .env 
+```
+
+Compila le variabili nel file `.env` utilizzando le chiavi presenti nel file scaricato (escludendo la variabile `type`).
+La variabile `FIREBASE_DATABASE_URL` la trovi nella pagina da cui hai scaricato la chiave, nella var `databaseURL`.
+
+#### 5. Configurazione delle Chiavi Pubbliche
+
+1. Sempre nelle **Impostazioni progetto**, vai su **Generali**.
+2. Nella sezione **App**, clicca sull'icona `</>`, inserisci un nickname per l'app e registrala.
+3. Copia le variabili `apiKey` e `authDomain` dalla sezione **Firebase SDK snippet** e incollale nel file `src/firebase.js` nella `const firebaseConfig`.
+
+---
+
+#### 6. Configurazione dei Domini Autorizzati
+
+> **DOPO IL DEPLOY**: Per far funzionare l'autenticazione nel sito online, assicurati di inserire l'URL del sito su **Autenticazione > Impostazioni > Domini autorizzati** e aggiungi il dominio del tuo sito.
+
+---
+
+# CMD per inizializzare
+```sh
+npm i
+```
 
 > **ATTENZIONE:** Se utilizzi Netlify Functions, assicurati di aver un account su Netlify e segui i passaggi elencati di seguito:
 
@@ -37,6 +109,8 @@ npm run dev
 
 9. **Il tuo sito è online**
    - Una volta completato il deploy, il tuo sito sarà online.
+
+> **IMPORTANTE**: Per far funzionare l'autenticazione nel sito online, assicurati di inserire l'URL del sito su  **Firebase > Autenticazione > Impostazioni > Domini autorizzati** e aggiungi il dominio del tuo sito.
 
 ### Netlify CLI
 Installa Netlify CLI a livello globale lanciando

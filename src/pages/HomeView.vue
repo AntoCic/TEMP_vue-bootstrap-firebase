@@ -15,11 +15,46 @@
 
         <h1 class="bg-light text-dark px-4 py-2 rounded bg-opacity-75">Template Vue + Bootstrap</h1>
 
-        <p class="mb-2">{{ store.textHello }}</p>
-
         <button type="button" class="btn btn-outline-success" @click="count++">
           count: {{ count }}
         </button>
+      </div>
+
+      <div class="col-12 col-md-8 mx-auto ">
+
+        <div v-if="store.user.isLogged" class="border border-light rounded position-relative py-2 px-4 mt-2">
+          <span class="position-absolute top-0 start-0 translate-middle">
+            <img src="../assets/img/box.svg" alt="icona di un box di legno">
+          </span>
+
+          <div class="input-group mb-3">
+            <input type="text" class="form-control" v-model="newItem" placeholder="items to add">
+            <button class="btn btn-outline-success" type="button" @click="addItems"><span
+                class="material-symbols-outlined">
+                add
+              </span></button>
+          </div>
+
+          <div class="input-group mb-1" v-for="(item, key) in store.firebase.items" :key="key">
+            <input type="text" class="form-control" v-model="item.name" placeholder="items to add">
+            <button class="btn btn-outline-warning" type="button" @click="store.firebase.db_update(key, item.name)">
+              <span class="material-symbols-outlined">
+                edit
+              </span>
+            </button>
+            <button class="btn btn-outline-danger" type="button" @click="store.firebase.db_delete(key)">
+              <span class="material-symbols-outlined">
+                delete
+              </span>
+            </button>
+          </div>
+
+          <p>
+            {{ }}
+
+          </p>
+
+        </div>
 
       </div>
     </div>
@@ -33,7 +68,19 @@ export default {
     return {
       store,
       count: 0,
+      newItem: '',
     }
+  },
+  methods: {
+    async addItems() {
+      const isAdded = await this.store.firebase.db_add(this.newItem);
+      if (isAdded) {
+        this.newItem = ''
+      } else {
+        console.log('jufhuehfuihewuih');
+
+      }
+    },
   },
 }
 </script>
