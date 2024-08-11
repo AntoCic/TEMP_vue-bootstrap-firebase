@@ -13,7 +13,7 @@
       </div>
       <div class="col-12 text-white text-center">
 
-        <h1 class="bg-light text-dark px-4 py-2 rounded bg-opacity-75">Template Vue + Bootstrap</h1>
+        <h1 class="bg-light text-dark px-4 py-2 rounded bg-opacity-75">Template Vue + Bootstrap + Firebase</h1>
 
         <button type="button" class="btn btn-outline-success" @click="count++">
           count: {{ count }}

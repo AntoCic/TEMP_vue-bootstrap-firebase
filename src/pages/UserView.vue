@@ -15,9 +15,8 @@
                 <label for="email" class="material-symbols-outlined icon">
                   alternate_email
                 </label>
-                <input type="email"
-                  :class="['form-control', store.validate.check({ email, type: 'email', form: 'login' })]" id="email"
-                  v-model="email" placeholder="Enter your Email">
+                <input type="email" :class="['form-control', validate.check({ email, type: 'email', form: 'login' })]"
+                  id="email" v-model="email" placeholder="Enter your Email">
 
               </div>
             </div>
@@ -29,11 +28,10 @@
                   lock
                 </label>
                 <input :type="password_visibility ? 'text' : 'password'"
-                  :class="['form-control', store.validate.check({ password, type: 'password', form: 'login' })]"
-                  id="password" v-model="password" placeholder="Enter your Password">
+                  :class="['form-control', validate.check({ password, type: 'password', form: 'login' })]" id="password"
+                  v-model="password" placeholder="Enter your Password">
 
-                <label v-if="password_visibility" for="password_visibility"
-                  class="material-symbols-outlined ps-1">
+                <label v-if="password_visibility" for="password_visibility" class="material-symbols-outlined ps-1">
                   visibility
                 </label>
                 <label v-else for="password_visibility" class="material-symbols-outlined ps-1">
@@ -65,10 +63,10 @@
                   person
                 </label>
                 <input type="text"
-                  :class="['form-control', store.validate.check({ registerUserName, type: 'string', query: [3, 10], form: 'register' })]"
+                  :class="['form-control', validate.check({ registerUserName, type: 'string', query: [3, 10], form: 'register' })]"
                   id="registerUserName" v-model="registerUserName" placeholder="Enter your Name">
               </div>
-              <p :class="store.validate.showError('registerUserName')"> ciao mondo </p>
+              <p :class="validate.showError('registerUserName')"> ciao mondo </p>
             </div>
 
             <div class="mb-2">
@@ -78,7 +76,7 @@
                   alternate_email
                 </label>
                 <input type="email"
-                  :class="['form-control', store.validate.check({ registerEmail, type: 'email', query: [3, 10], form: 'register' })]"
+                  :class="['form-control', validate.check({ registerEmail, type: 'email', query: [3, 10], form: 'register' })]"
                   id="registerEmail" v-model="registerEmail" placeholder="Enter your Email">
 
               </div>
@@ -92,7 +90,7 @@
                 </label>
 
                 <input :type="password_visibility ? 'text' : 'password'"
-                  :class="['form-control', store.validate.check({ registerPassword, type: 'password', form: 'register' })]"
+                  :class="['form-control', validate.check({ registerPassword, type: 'password', form: 'register' })]"
                   id="registerPassword" v-model="registerPassword" placeholder="Enter your Password">
 
                 <label v-if="password_visibility" for="registerPassword_visibility"
@@ -115,7 +113,7 @@
                   lock
                 </label>
                 <input :type="password_visibility ? 'text' : 'password'"
-                  :class="['form-control', store.validate.check({ registerRetypePassword, type: 'retype-password', query: registerPassword, form: 'register' })]"
+                  :class="['form-control', validate.check({ registerRetypePassword, type: 'retype-password', query: registerPassword, form: 'register' })]"
                   id="registerRetypePassword" v-model="registerRetypePassword" placeholder="Enter your Password">
 
                 <label v-if="password_visibility" for="registerRetypePassword_visibility"
@@ -145,6 +143,7 @@
 
 <script>
 import { store } from '../store.js'
+import validate from '../personal_modules/validate.js';
 import BtnGoogleSignIn from '../components/BtnGoogleSignIn.vue'
 import CmpFlipCard from '../components/CmpFlipCard.vue';
 export default {
@@ -152,6 +151,7 @@ export default {
   data() {
     return {
       store,
+      validate,
       isRegistering: false,
       email: '',
       password: '',
@@ -177,7 +177,7 @@ export default {
     },
     // 
     async register() {
-      if (this.store.validate.isAllValidated()) {
+      if (this.validate.isAllValidated()) {
         const isRegistered = await store.user.register(this.registerUserName, this.registerEmail, this.registerPassword);
         if (isRegistered) {
           this.isRegistering = false;
@@ -197,15 +197,15 @@ export default {
       this.password_visibility = false
       this.isRegistering = !this.isRegistering
       if (this.isRegistering) {
-        this.store.validate.init('register')
+        this.validate.init('register')
       } else {
-        this.store.validate.init('login')
+        this.validate.init('login')
       }
     },
 
   },
   created() {
-    this.store.validate.init('login')
+    this.validate.init('login')
   }
 };
 </script>
