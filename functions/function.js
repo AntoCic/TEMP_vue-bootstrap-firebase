@@ -31,9 +31,11 @@ const serviceAccount = {
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: FIREBASE_DATABASE_URL,
+  storageBucket: "temp-vue-firebase.appspot.com"
 });
 
 const db = admin.database();
+const bucket = admin.storage().bucket();
 
 exports.handler = async function (event, context) {
   await router.start(event);
@@ -73,6 +75,99 @@ exports.handler = async function (event, context) {
         router.setRes(itemDelated);
       }
     })
+
+
+    // Funzione per caricare un'immagine
+    await router.POST('uploadImage', async () => {
+      const { base64Image, fileName } = router.bodyParams;
+
+      if (!base64Image || !fileName) {
+        return router.error(400, 'Missing base64Image or fileName');
+      }
+
+      try {
+        const buffer = Buffer.from(base64Image, 'base64');
+
+        const extension = fileName.split('.').pop().toLowerCase();
+        let contentType;
+        switch (extension) {
+          case 'jpg':
+          case 'jpeg':
+            contentType = 'image/jpeg';
+            break;
+          case 'png':
+            contentType = 'image/png';
+            break;
+          case 'gif':
+            contentType = 'image/gif';
+            break;
+          case 'svg':
+            contentType = 'image/svg+xml';
+            break;
+          default:
+            return router.error(400, 'Unsupported image format');
+        }
+        const fullName = `${dbFirebase.newId()}_${fileName}`
+
+        const file = bucket.file(`users/${dbFirebase.user.uid}/${fullName}`);
+        await file.save(buffer, { contentType });
+        const [url] = await file.getSignedUrl({
+          action: 'read',
+          expires: '03-09-2491',  // Puoi cambiare questa data di scadenza
+        });
+
+        router.setRes({ [fullName]: url });
+      } catch (error) {
+        router.error(500, 'Failed to upload image');
+      }
+    });
+
+    // Funzione per ottenere le immagini dell'utente
+    await router.POST('getImages', async () => {
+      try {
+        const [files] = await bucket.getFiles({ prefix: `users/${dbFirebase.user.uid}/` });
+        const urls = {};
+
+        await Promise.all(files.map(async file => {
+          const [url] = await file.getSignedUrl({
+            action: 'read',
+            expires: '03-09-2491',  // Puoi cambiare questa data di scadenza
+          });
+
+          const fileName = file.name.split('/')
+          while (fileName.length > 1) {
+            fileName.shift();
+          }
+
+          urls[fileName] = url;
+        }));
+
+        router.setRes({ urls });
+      } catch (error) {
+        router.error(500, 'Failed to retrieve images');
+      }
+    });
+
+    // Route per eliminare l'immagine
+    await router.POST('deleteImage', async () => {
+      const { fileName } = router.bodyParams;
+
+      if (fileName) {
+        const fullPath = `users/${dbFirebase.user.uid}/${fileName}`;
+        try {
+          await bucket.file(fullPath).delete();
+          console.log(fileName);
+
+          router.setRes({ deleted: fileName });
+        } catch (error) {
+          console.error('Failed to delete image:', error);
+          router.error(500, 'Failed to delete image');
+        }
+      } else {
+        router.error(400, 'Image URL not provided');
+      }
+    });
+
   }
   return router.sendRes()
 

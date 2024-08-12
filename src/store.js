@@ -11,7 +11,7 @@ export const store = reactive({
 
     onLogin() {
         console.log('-Is logeed-');
-
+        store.firebase.loadImg();
         this.firebase.db_get();
     },
 
@@ -19,6 +19,7 @@ export const store = reactive({
         isLogged: null,
         idToken: null,
         email: null,
+        uid: null,
         userName: null,
         checkLogged() {
             onAuthStateChanged(auth, async (currentUser) => {
@@ -26,6 +27,7 @@ export const store = reactive({
                     this.isLogged = true
                     this.idToken = currentUser.accessToken
                     this.email = currentUser.email
+                    this.uid = currentUser.uid
 
                     if (this.userName) {
                         await this.addUserName(this.userName)
@@ -157,6 +159,7 @@ export const store = reactive({
             this.isLogged = false
             this.idToken = null
             this.email = null
+            this.uid = null
             this.userName = null
             store.loading.off();
         },
@@ -165,6 +168,8 @@ export const store = reactive({
 
     firebase: {
         items: {},
+        images: {},
+
         async db_get() {
             this.items = {}
             store.loading.on();
@@ -257,6 +262,92 @@ export const store = reactive({
                     return false
                 })
         },
+
+        loadImg() {
+            store.loading.on();
+            axios.post('/api/getImages', {}, {
+                headers: {
+                    "Authorization": store.user.idToken
+                }
+            }).then((res) => {
+                store.loading.off();
+                if (res.data.urls) {
+                    this.images = res.data.urls
+                } else {
+                    console.error('Failed to load images:', res.data.message);
+                }
+            }).catch((error) => {
+                store.loading.off();
+                console.error('Load error:', error);
+            })
+        },
+
+        async uploadImg(event) {
+            let selectedFile;
+            if (event.dataTransfer) {
+                selectedFile = event.dataTransfer.files[0]
+            } else if (event.target.files) {
+                selectedFile = event.target.files[0]
+            }
+
+            store.loading.on();
+            if (!selectedFile) {
+                store.loading.off();
+                console.error('No file selected!');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.readAsDataURL(selectedFile);
+            reader.onload = async () => {
+                const base64Image = reader.result.split(',')[1];
+                const fileName = selectedFile.name;
+
+                axios.post('/api/uploadImage', {
+                    base64Image,
+                    fileName
+                }, {
+                    headers: {
+                        "Authorization": store.user.idToken
+                    }
+                }).then((res) => {
+                    store.loading.off();
+                    if (res.data) {
+                        const [[key, value]] = Object.entries(res.data);
+                        store.firebase.images[key] = value
+                    } else {
+                        console.error('Upload failed:', response.data);
+                    }
+                }).catch((error) => {
+                    store.loading.off();
+                    console.error('Upload error:', error);
+                });
+
+            };
+
+        },
+
+        async deleteImg(fileName) {
+            store.loading.on();
+            axios.post('/api/deleteImage', { fileName }, {
+                headers: {
+                    Authorization: store.user.idToken,
+                },
+            }).then((res) => {
+                store.loading.off();
+                if (res.data.deleted) {
+                    delete this.images[res.data.deleted]
+                } else {
+                    console.error('Delete failed:', res.data);
+                }
+            }).catch((error) => {
+                store.loading.off();
+                console.error('Delete error:', error);
+            })
+        },
+
+
+
     },
 
     loading: {
