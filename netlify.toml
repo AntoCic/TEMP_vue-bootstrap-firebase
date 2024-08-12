@@ -1,7 +1,7 @@
 [build]
   functions = "functions"
 
-[function]
+[functions]
   included_files = ["personal_modules/**"]
 
 [[redirects]]
