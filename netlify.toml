@@ -1,9 +1,6 @@
 [build]
   functions = "functions"
 
-[functions]
-  included_files = ["/personal_modules/**"]
-
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/function/:splat"

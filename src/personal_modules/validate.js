@@ -12,25 +12,19 @@ export default {
         if (!form) {
             form = ''
         }
-        console.log('form : ', form);
 
         if (Object.keys(varTocheck).length === 1) {
             const [varName, value] = Object.entries(varTocheck)[0];
             if (type) {
                 request.type = request.type.replace(/\s/g, '');
 
-                console.log(type, query, required, varName, value, form);
-
                 if (!Object.hasOwn(this.VL, form)) {
                     this.VL[form] = {}
                 }
-                console.log(this.VL);
 
                 if (!Object.hasOwn(this.VL[form], varName)) {
                     this.VL[form][varName] = null
                 }
-
-                console.log(this.VL);
 
                 switch (type) {
                     case 'string':
@@ -96,9 +90,12 @@ export default {
     },
 
     showError(varName) {
-        if (this.VL[this.form][varName] === false) {
-            return 'text-danger ps-2 mb-0 small '
+        if (this.VL[this.form]) {
+            if (this.VL[this.form][varName] === false) {
+                return 'text-danger ps-2 mb-0 small '
+            }
         }
+
         return 'd-none'
     },
 
@@ -203,11 +200,17 @@ export default {
             max = query[1] || max;
         }
 
+        const regexPassword = /^(?=.*[A-Z])(?=.*\d)(?!.*\s).+$/;
+
         if (
             value.length <= max &&
             value.length >= min
         ) {
-            this.VL[form][varName] = true
+            if (regexPassword.test(value)) {
+                this.VL[form][varName] = true
+            } else {
+                this.VL[form][varName] = false;
+            }
         } else {
             if (this.VL[form][varName] !== null) {
                 this.VL[form][varName] = false;
@@ -216,14 +219,15 @@ export default {
     },
 
     VL_retypePassword(form, value, varName, query) {
-        console.log(query);
         if (value.length >= 8) {
-            if (value === query & query.length >= 8) {
+            if (value === query) {
                 this.VL[form][varName] = true
             } else {
-                if (this.VL[form][varName] !== null || query.length >= 8) {
-                    this.VL[form][varName] = false;
-                }
+                this.VL[form][varName] = false;
+            }
+        } else {
+            if (this.VL[form][varName] !== null) {
+                this.VL[form][varName] = false;
             }
         }
 

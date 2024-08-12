@@ -15,8 +15,7 @@
                 <label for="email" class="material-symbols-outlined icon">
                   alternate_email
                 </label>
-                <input type="email" :class="['form-control', validate.check({ email, type: 'email', form: 'login' })]"
-                  id="email" v-model="email" placeholder="Enter your Email">
+                <input type="email" :class="['form-control']" id="email" v-model="email" placeholder="Enter your Email">
 
               </div>
             </div>
@@ -27,8 +26,7 @@
                 <label for="password" class="material-symbols-outlined icon">
                   lock
                 </label>
-                <input :type="password_visibility ? 'text' : 'password'"
-                  :class="['form-control', validate.check({ password, type: 'password', form: 'login' })]" id="password"
+                <input :type="password_visibility ? 'text' : 'password'" :class="['form-control']" id="password"
                   v-model="password" placeholder="Enter your Password">
 
                 <label v-if="password_visibility" for="password_visibility" class="material-symbols-outlined ps-1">
@@ -42,6 +40,8 @@
               <p class="mb-0 text-end"><a type="button" class="text-primary small"
                   @click="store.user.resetPassword(email)">Forgot password?</a></p>
             </div>
+
+            <p class="text-danger ps-2" v-if="loginError">Credenziali non valide. Verifica email e password.</p>
 
             <div class="text-center">
               <button class="btn btn-dark w-100" @click="login">Sign in</button>
@@ -63,10 +63,10 @@
                   person
                 </label>
                 <input type="text"
-                  :class="['form-control', validate.check({ registerUserName, type: 'string', query: [3, 10], form: 'register' })]"
+                  :class="['form-control', validate.check({ registerUserName, type: 'string', query: [3, 100], form: 'register' })]"
                   id="registerUserName" v-model="registerUserName" placeholder="Enter your Name">
               </div>
-              <p :class="validate.showError('registerUserName')"> ciao mondo </p>
+              <p :class="validate.showError('registerUserName')"> Il campo deve contenere un minimo di 3 caratteri e un massimo di 100. </p>
             </div>
 
             <div class="mb-2">
@@ -76,10 +76,10 @@
                   alternate_email
                 </label>
                 <input type="email"
-                  :class="['form-control', validate.check({ registerEmail, type: 'email', query: [3, 10], form: 'register' })]"
+                  :class="['form-control', validate.check({ registerEmail, type: 'email', form: 'register' })]"
                   id="registerEmail" v-model="registerEmail" placeholder="Enter your Email">
-
               </div>
+              <p :class="validate.showError('registerEmail')"> Email non valida. Controlla e riprova. </p>
             </div>
 
             <div class="mb-1">
@@ -101,8 +101,8 @@
                   visibility_off
                 </label>
                 <input type="checkbox" class="d-none" v-model="password_visibility" id="registerPassword_visibility">
-
               </div>
+              <p :class="validate.showError('registerPassword')"> Il campo deve contenere almeno 8 caratteri, includendo almeno una lettera maiuscola e almeno un numero. </p>
             </div>
 
             <div class="mb-3">
@@ -127,6 +127,7 @@
                   id="registerRetypePassword_visibility">
 
               </div>
+              <p :class="validate.showError('registerRetypePassword')"> Il valore di questo campo deve corrispondere a quello del campo password. </p>
             </div>
 
             <div class="text-center">
@@ -155,24 +156,29 @@ export default {
       isRegistering: false,
       email: '',
       password: '',
+
+      loginError: false,
+
       registerUserName: '',
       registerEmail: '',
       registerPassword: '',
       registerRetypePassword: '',
-      user: null,
+
       password_visibility: false,
+
     };
   },
   methods: {
     async login() {
-      const isRegistered = await store.user.login(this.email, this.password)
+      const isRegistered = await store.user.login(this.email, this.password);
+
       if (isRegistered) {
         this.email = '';
         this.password = '';
         this.password_visibility = false
       } else {
         this.password_visibility = false
-        console.log('fuijhewuihfuihbwqueihuiferuiwhebfnjhbwejhbfjhbghwiuebiuf');
+        this.loginError = true
       }
     },
     // 
@@ -186,7 +192,7 @@ export default {
           this.registerPassword = '';
         } else {
           this.password_visibility = false
-          console.log('fuijhewuihfuihbwqueihuiferuiwhebfnjhbwejhbfjhbghwiuebiuf');
+          console.log('Per favore, completa tutti i campi correttamente.');
         }
       } else {
         alert('Per favore, completa tutti i campi correttamente.');
@@ -196,6 +202,7 @@ export default {
     flipCard() {
       this.password_visibility = false
       this.isRegistering = !this.isRegistering
+      this.loginError = false
       if (this.isRegistering) {
         this.validate.init('register')
       } else {
