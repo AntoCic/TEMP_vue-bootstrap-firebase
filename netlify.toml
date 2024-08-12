@@ -2,7 +2,7 @@
   functions = "functions"
 
 [functions]
-  included_files = ["personal_modules/**"]
+  included_files = ["/personal_modules/**"]
 
 [[redirects]]
   from = "/api/*"
