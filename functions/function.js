@@ -1,6 +1,6 @@
 import admin from 'firebase-admin';
 
-import RouterNtl from './RouterNtl';
+import RouterNtl from './personal_modules/RouterNtl';
 
 const router = new RouterNtl();
 
