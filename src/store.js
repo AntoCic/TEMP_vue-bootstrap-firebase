@@ -282,13 +282,7 @@ export const store = reactive({
             })
         },
 
-        async uploadImg(event) {
-            let selectedFile;
-            if (event.dataTransfer) {
-                selectedFile = event.dataTransfer.files[0]
-            } else if (event.target.files) {
-                selectedFile = event.target.files[0]
-            }
+        async uploadImg(selectedFile) {
 
             store.loading.on();
             if (!selectedFile) {

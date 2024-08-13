@@ -28,12 +28,12 @@
             <img src="../assets/img/box.svg" alt="icona di un box di legno">
           </span>
 
-          <div class="mb-3">
-            <CmpDropFile :drop="store.firebase.uploadImg" />
+          <div class="mb-3 text-center">
+            <CmpDropFile @getImg="store.firebase.uploadImg" fileType="img" />
           </div>
 
           <!-- Display uploaded images -->
-          <div v-if="store.firebase.images" class="mb-3">
+          <div v-if="store.firebase.images" class="mb-3 text-center">
             <div v-for="(image, index) in store.firebase.images" :key="index"
               class="m-2 d-inline-block position-relative">
               <img :src="image" alt="Uploaded Image" class="d-inline-block" width="150" />
