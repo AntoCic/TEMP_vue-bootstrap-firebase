@@ -35,7 +35,33 @@ Questa guida ti aiuterà a configurare Firebase nel tuo progetto, includendo la 
 }
 ```
 
-#### 3. Impostazione dei Provider di Autenticazione
+#### 3. Configurazione del Firebase Storage
+
+1. **Aggiungi Firebase Storage al Progetto**:
+   - Nella **Firebase Console**, seleziona il tuo progetto.
+   - Nel menu di navigazione, seleziona **Storage**.
+   - Fai clic su **Inizia** per configurare Firebase Storage.
+
+2. **Imposta le Regole di Sicurezza**:
+   - Dopo aver abilitato Firebase Storage, fai clic su **Regole**.
+   - Inserisci il seguente codice per le regole di sicurezza:
+
+```js
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /users/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+```
+
+#### 4. Impostazione dei Provider di Autenticazione
 
 1. Torna alla sezione **Autenticazione**.
 2. Clicca su **Inizia** o direttamente su **Email/Password** e abilita questa modalità di autenticazione.
@@ -47,7 +73,7 @@ Questa guida ti aiuterà a configurare Firebase nel tuo progetto, includendo la 
 
 ---
 
-#### 4. Recupero delle Chiavi Necessarie
+#### 5. Recupero delle Chiavi Necessarie
 
 1. Clicca sull'icona della rotella in alto a destra e seleziona **Impostazioni progetto**.
 2. Vai su **Account di servizio** e genera una nuova chiave cliccando sul pulsante apposito.
@@ -60,15 +86,15 @@ cp .env.example .env
 Compila le variabili nel file `.env` utilizzando le chiavi presenti nel file scaricato (escludendo la variabile `type`).
 La variabile `FIREBASE_DATABASE_URL` la trovi nella pagina da cui hai scaricato la chiave, nella var `databaseURL`.
 
-#### 5. Configurazione delle Chiavi Pubbliche
+#### 6. Configurazione delle Chiavi Pubbliche
 
 1. Sempre nelle **Impostazioni progetto**, vai su **Generali**.
 2. Nella sezione **App**, clicca sull'icona `</>`, inserisci un nickname per l'app e registrala.
-3. Copia le variabili `apiKey` e `authDomain` dalla sezione **Firebase SDK snippet** e incollale nel file `src/firebase.js` nella `const firebaseConfig`.
+3. Copia le variabili `apiKey` e `authDomain` e `storageBucket` dalla sezione **Firebase SDK snippet** e incollale nel file `src/firebase.js` nella `const firebaseConfig` tranne `storageBucket` che va copiato dentro `functions/function.js`.
 
 ---
 
-#### 6. Configurazione dei Domini Autorizzati
+#### 7. Configurazione dei Domini Autorizzati
 
 > **DOPO IL DEPLOY**: Per far funzionare l'autenticazione nel sito online, assicurati di inserire l'URL del sito su **Autenticazione > Impostazioni > Domini autorizzati** e aggiungi il dominio del tuo sito.
 
