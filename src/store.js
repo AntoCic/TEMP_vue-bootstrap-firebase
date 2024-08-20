@@ -193,7 +193,7 @@ export const store = reactive({
         },
         async db_add(item) {
             store.loading.on();
-            return await axios.post('/api/a/items', { name: item, id: true }, {
+            return await axios.post('/api/a/items', { data: { name: item }, id: true }, {
                 headers: {
                     "Authorization": store.user.idToken
                 }
@@ -219,7 +219,7 @@ export const store = reactive({
                 if (newItemsName === '') {
                     return await this.db_delete(id)
                 } else {
-                    return await axios.put('/api/u/items', { name: newItemsName, id }, {
+                    return await axios.put('/api/u/items', { data: { name: newItemsName }, id }, {
                         headers: {
                             "Authorization": store.user.idToken
                         }
@@ -265,7 +265,7 @@ export const store = reactive({
 
         loadImg() {
             store.loading.on();
-            axios.post('/api/getImages', {}, {
+            axios.post('/api/g-files', {}, {
                 headers: {
                     "Authorization": store.user.idToken
                 }
@@ -294,11 +294,11 @@ export const store = reactive({
             const reader = new FileReader();
             reader.readAsDataURL(selectedFile);
             reader.onload = async () => {
-                const base64Image = reader.result.split(',')[1];
+                const base64Data = reader.result.split(',')[1];
                 const fileName = selectedFile.name;
 
-                axios.post('/api/uploadImage', {
-                    base64Image,
+                axios.post('/api/a-file', {
+                    base64Data,
                     fileName
                 }, {
                     headers: {
@@ -323,7 +323,7 @@ export const store = reactive({
 
         async deleteImg(fileName) {
             store.loading.on();
-            axios.post('/api/deleteImage', { fileName }, {
+            axios.post('/api/d-file', { fileName }, {
                 headers: {
                     Authorization: store.user.idToken,
                 },

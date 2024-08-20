@@ -29,7 +29,9 @@
           </span>
 
           <div class="mb-3 text-center">
-            <CmpDropFile @getImg="store.firebase.uploadImg" fileType="img" />
+            <CmpDropFile @getImg="(files) => {
+              Files = files; console.log(Files);
+            }" fileType="img" :multiple="true" uploadBtn @uploadBtn="() => { console.log('UPLOADDDDDDDDDD') }" />
           </div>
 
           <!-- Display uploaded images -->
@@ -79,6 +81,7 @@ export default {
       store,
       count: 0,
       newItem: '',
+      Files: [],
     };
   },
   methods: {
@@ -90,6 +93,11 @@ export default {
         console.log('Error adding item');
       }
     },
+
+    getFileList(files) {
+      // store.firebase.uploadImg
+    }
+
 
   },
   created() {
