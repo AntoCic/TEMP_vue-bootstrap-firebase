@@ -34,6 +34,11 @@ export default {
     'user.accessToken'(newLog, oldLog) {
       if (newLog !== oldLog) {
         this.store.userJWT = newLog
+        if (newLog) {
+          this.store.onLogin()
+        } else {
+          this.store.onLogout()
+        }
         this.checkRoute()
       }
     },

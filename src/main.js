@@ -3,7 +3,6 @@ import App from './App.vue'
 import './assets/scss/general.scss'
 import * as bootstrap from 'bootstrap'
 import {router} from './router'
-import './firebase';
 
 const app = createApp(App)
 app.use(router)

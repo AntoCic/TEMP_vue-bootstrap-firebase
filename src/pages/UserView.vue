@@ -1,12 +1,12 @@
 <template>
-  <h1 class="text-white"> user</h1>
-  <!-- <div class="container my-auto">
+  <div class="container my-auto">
     <div class="row justify-content-center p-3">
       <div class="col col-md-8 col-lg-6 col-xl-4 p-3">
         <CmpFlipCard :state="isRegistering">
           <template v-slot:front>
+            <form ></form>
             <h1 class="text-center mb-3">Login</h1>
-            <BtnGoogleSignIn @click="store.user.googleLogin" />
+            <BtnGoogleSignIn @click="user.googleLogin" />
 
             <hr class="text-secondary">
 
@@ -39,7 +39,7 @@
                 <input type="checkbox" class="d-none" v-model="password_visibility" id="password_visibility">
               </div>
               <p class="mb-0 text-end"><a type="button" class="text-primary small"
-                  @click="store.user.resetPassword(email)">Forgot password?</a></p>
+                  @click="user.resetPassword(email)">Forgot password?</a></p>
             </div>
 
             <p class="text-danger ps-2" v-if="loginError">Credenziali non valide. Verifica email e password.</p>
@@ -50,10 +50,10 @@
               </p>
             </div>
           </template>
-<template v-slot:back>
+          <template v-slot:back>
             <h1 class="text-center mb-3">Registrati</h1>
 
-            <BtnGoogleSignIn @click="store.user.googleLogin" />
+            <BtnGoogleSignIn @click="user.googleLogin" />
 
             <hr class="text-secondary">
 
@@ -67,7 +67,8 @@
                   :class="['form-control', validate.check({ registerUserName, type: 'string', query: [3, 100], form: 'register' })]"
                   id="registerUserName" v-model="registerUserName" placeholder="Enter your Name">
               </div>
-              <p :class="validate.showError('registerUserName')"> Il campo deve contenere un minimo di 3 caratteri e un massimo di 100. </p>
+              <p :class="validate.showError('registerUserName')"> Il campo deve contenere un minimo di 3 caratteri e un
+                massimo di 100. </p>
             </div>
 
             <div class="mb-2">
@@ -103,7 +104,8 @@
                 </label>
                 <input type="checkbox" class="d-none" v-model="password_visibility" id="registerPassword_visibility">
               </div>
-              <p :class="validate.showError('registerPassword')"> Il campo deve contenere almeno 8 caratteri, includendo almeno una lettera maiuscola e almeno un numero. </p>
+              <p :class="validate.showError('registerPassword')"> Il campo deve contenere almeno 8 caratteri, includendo
+                almeno una lettera maiuscola e almeno un numero. </p>
             </div>
 
             <div class="mb-3">
@@ -128,7 +130,8 @@
                   id="registerRetypePassword_visibility">
 
               </div>
-              <p :class="validate.showError('registerRetypePassword')"> Il valore di questo campo deve corrispondere a quello del campo password. </p>
+              <p :class="validate.showError('registerRetypePassword')"> Il valore di questo campo deve corrispondere a
+                quello del campo password. </p>
             </div>
 
             <div class="text-center">
@@ -136,15 +139,15 @@
               <p class="my-2">Hai già un account? <a type="button" class="text-primary" @click="flipCard">Login</a></p>
             </div>
           </template>
-</CmpFlipCard>
+        </CmpFlipCard>
 
-</div>
-</div>
-</div> -->
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-import { store } from '../store.js'
+import { user } from '../user.js'
 import validate from '../personal_modules/validate.js';
 import BtnGoogleSignIn from '../components/BtnGoogleSignIn.vue'
 import CmpFlipCard from '../components/CmpFlipCard.vue';
@@ -152,7 +155,7 @@ export default {
   components: { BtnGoogleSignIn, CmpFlipCard },
   data() {
     return {
-      store,
+      user,
       validate,
       isRegistering: false,
       email: '',
@@ -171,7 +174,7 @@ export default {
   },
   methods: {
     async login() {
-      const isRegistered = await store.user.login(this.email, this.password);
+      const isRegistered = await this.user.login(this.email, this.password);
 
       if (isRegistered) {
         this.email = '';
@@ -185,7 +188,7 @@ export default {
     // 
     async register() {
       if (this.validate.isAllValidated()) {
-        const isRegistered = await store.user.register(this.registerUserName, this.registerEmail, this.registerPassword);
+        const isRegistered = await this.user.register(this.registerUserName, this.registerEmail, this.registerPassword);
         if (isRegistered) {
           this.isRegistering = false;
           this.registerUserName = '';
@@ -213,7 +216,7 @@ export default {
 
   },
   created() {
-    // this.validate.init('login')
+    this.validate.init('login')
   }
 };
 </script>

@@ -26,12 +26,12 @@ import admin from 'firebase-admin';
 exports.handler = async function (event, context) {
   await router.start(event);
   // AUTH route
-
   if (router.authToken) {
     const user = await firebase.user.logged(router.authToken);
     if (user) {
       await router.POST('g', async () => {
         const res = await firebase.user.get(router.pathParams);
+
         if (res) { router.setRes(res); }
       })
 
