@@ -1,5 +1,6 @@
 <template>
-  <div class="container my-auto">
+  <h1 class="text-white"> user</h1>
+  <!-- <div class="container my-auto">
     <div class="row justify-content-center p-3">
       <div class="col col-md-8 col-lg-6 col-xl-4 p-3">
         <CmpFlipCard :state="isRegistering">
@@ -49,7 +50,7 @@
               </p>
             </div>
           </template>
-          <template v-slot:back>
+<template v-slot:back>
             <h1 class="text-center mb-3">Registrati</h1>
 
             <BtnGoogleSignIn @click="store.user.googleLogin" />
@@ -135,11 +136,11 @@
               <p class="my-2">Hai già un account? <a type="button" class="text-primary" @click="flipCard">Login</a></p>
             </div>
           </template>
-        </CmpFlipCard>
+</CmpFlipCard>
 
-      </div>
-    </div>
-  </div>
+</div>
+</div>
+</div> -->
 </template>
 
 <script>
@@ -212,7 +213,7 @@ export default {
 
   },
   created() {
-    this.validate.init('login')
+    // this.validate.init('login')
   }
 };
 </script>

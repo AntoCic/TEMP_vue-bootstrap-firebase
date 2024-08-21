@@ -1,7 +1,6 @@
 <template>
   <div class="container my-auto">
     <div class="row">
-      <!-- Existing content -->
       <div class="col-6">
         <a class="logo text-end" href="https://getbootstrap.com/docs/5.3/getting-started/introduction" target="_blank">
           <img src="../assets/img/bootstrap.svg" alt="logo Bootstrap">
@@ -22,19 +21,17 @@
 
 
       <div class="col-12 col-md-8 mx-auto">
-        <!-- Image upload section -->
-        <div v-if="store.user.isLogged" class="border border-light rounded position-relative py-2 px-4 mt-2">
+
+        <div v-if="false" class="border border-light rounded position-relative py-2 px-4 mt-2">
           <span class="position-absolute top-0 start-0 translate-middle">
             <img src="../assets/img/box.svg" alt="icona di un box di legno">
           </span>
 
           <div class="mb-3 text-center">
-            <CmpDropFile @getImg="(files) => {
-              Files = files; console.log(Files);
-            }" fileType="img" :multiple="true" uploadBtn @uploadBtn="() => { console.log('UPLOADDDDDDDDDD') }" />
+            <CmpDropFile working="onClickUpload" @onClickUpload="(files) => { console.log(files); }" fileType="img"
+              multiple />
           </div>
 
-          <!-- Display uploaded images -->
           <div v-if="store.firebase.images" class="mb-3 text-center">
             <div v-for="(image, index) in store.firebase.images" :key="index"
               class="m-2 d-inline-block position-relative">
@@ -48,7 +45,6 @@
             </div>
           </div>
 
-          <!-- Existing items section -->
           <div class="input-group mb-3">
             <input type="text" class="form-control" v-model="newItem" placeholder="items to add">
             <button class="btn btn-outline-success" type="button" @click="addItems">

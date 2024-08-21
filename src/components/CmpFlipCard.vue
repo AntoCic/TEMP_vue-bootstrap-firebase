@@ -1,7 +1,27 @@
+<!-- 
+# Modalità di Utilizzo
+All'interno dell'attributo `state`, inserisci un booleano che controlla il flip della carta: 
+- se è `true`, viene visualizzato il fronte; 
+- se è `false`, la carta si gira e viene visualizzato il retro.
+
+```html
+<CmpFlipCard :state="isFront">
+
+  <template v-slot:front>
+    <p>-FRONT-</p>
+  </template>
+
+  <template v-slot:back>
+    <p>-BACK-</p>
+  </template>
+</CmpFlipCard>
+```
+
+-->
 <template>
   <div class="flip-card">
     <div :class="['flip-card-inner', state ? 'flip' : '']" :style="cardHeight ? `height: ${cardHeight}px;` : ''">
-      
+
       <div class="flip-card-front p-3 bg-white rounded-4" ref="front">
         <slot name="front">
           <p>FLIP CARD FRONT</p>

@@ -8,7 +8,7 @@
           </RouterLink>
         </div>
         <div class="col-auto">
-          <button v-if="store.user.isLogged" @click="store.user.logout"
+          <button v-if="store.user" @click="store.user.logout"
             class="btn btn-outline-danger border-0 px-1 me-1">
             <span v-if="store.user.userName" class="me-1">{{ store.user.userName }}</span>
             <span class="material-symbols-outlined align-top">

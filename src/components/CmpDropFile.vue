@@ -1,6 +1,39 @@
+<!-- 
+# Modalità di Utilizzo
+## Il componente può essere utilizzato in due modalità, specificate tramite l'attributo `working`:
+
+- `onUpload`: Emette una funzione al momento dell'upload dei file.
+```html
+<CmpDropFile working="onUpload" @onUpload="(files) => {console.log(files);}" 
+    fileType="img" multiple />
+```
+
+- `onClickUpload`: Emette una funzione al click del pulsante che viene creato.
+```html
+<CmpDropFile working="onClickUpload" @onClickUpload="(files) => {console.log(files);}" 
+    fileType="img" multiple />
+```
+
+## Tipi di File Supportati
+L'attributo `fileType` definisce i tipi di file accettati dal componente. I valori possibili sono:
+
+- `img`: `.jpg`, `.jpeg`, `.png`, `.gif`, `.svg`
+- `txt`: `.txt`
+- `pdf`: `.pdf`
+- `doc`: `.doc`, `.docx`
+- `xlsx`: `.xlsx`
+- `csv`: `.csv`
+- `all`: Accetta tutti i formati elencati sopra
+
+> **Nota:** Se l'attributo `fileType` non viene specificato, il valore predefinito sarà `all`.
+
+## Caricamento Multiplo di File
+Se viene aggiunto l'attributo `multiple`, sarà possibile caricare più file contemporaneamente.
+-->
+
 <template>
-    <label for="add-img" ref="btnDrop" :class="[`btn btn-outline-${btn} p-5`, uploadBtn ? 'rounded-top' : '']"
-        @dragover.prevent="dragover" @dragleave="dragleave" @drop.prevent="sendFile">
+    <label for="add-img" ref="btnDrop" :class="[`btn btn-outline-${btn} p-5`, isOnClickUpload ? 'rounded-top' : '']"
+        @dragover.prevent="dragover" @dragleave="dragleave" @drop.prevent="loadFile">
 
         <img v-if="files.length === 0" width="100" src="../assets/img/add_img.svg" alt="">
 
@@ -17,19 +50,23 @@
             Clicca per caricare o trascina qui l'immagine. Formati supportati: {{ extensions[fileType] }}
         </p>
 
-        <input class="d-none" type="file" id="add-img" @change="sendFile" :accept="extensions[fileType]"
+        <input class="d-none" type="file" id="add-img" @change="loadFile" :accept="extensions[fileType]"
             :multiple="multiple" />
     </label>
 
-    <button v-if="uploadBtn" class="btn btn-outline-success m-0 w-100 rounded-bottom " @click="emitUpload">
+    <button v-if="isOnClickUpload" class="btn btn-outline-success m-0 w-100 rounded-bottom " @click="emitUpload">
         Carica File
     </button>
 </template>
 
 <script>
 export default {
-    emits: ['getImg', 'uploadBtn'],
+    emits: ['onUpload', 'onClickUpload'],
     props: {
+        working: {
+            type: String,
+            required: true
+        },
         fileType: {
             type: String,
             default: 'all'
@@ -40,20 +77,18 @@ export default {
         },
         multiple: {
             type: Boolean,
-            default: false
         },
         path: {
             type: String,
             default: ''
         },
-        uploadBtn: {
-            type: Boolean,
-        },
+
     },
     data() {
         return {
             files: [],
             url: [],
+            isOnClickUpload: false,
             extensions: {
                 'img': '.jpg,.jpeg,.png,.gif,.svg',
                 'txt': '.txt',
@@ -66,7 +101,7 @@ export default {
         };
     },
     methods: {
-        sendFile(e) {
+        loadFile(e) {
             this.$refs.btnDrop.classList.remove('dragging');
 
             const newFiles = e.dataTransfer ? e.dataTransfer.files : e.target.files;
@@ -80,8 +115,10 @@ export default {
                     }
                 }
             }
-
-            this.$emit('getImg', this.files);
+            if (!this.isOnClickUpload) {
+                this.$emit('onUpload', this.files);
+                this.reset();
+            }
         },
         dragover() {
             this.$refs.btnDrop.classList.add('dragging');
@@ -102,11 +139,19 @@ export default {
 
 
         emitUpload() {
+            this.$emit('onClickUpload', this.files);
             this.reset()
-            this.$emit('uploadBtn', this.files);
         }
     },
     mounted() {
+        if (!['onUpload', 'onClickUpload'].includes(this.working)) {
+            console.error('working deve essere onUpload oppure onClickUpload');
+        } else {
+            if (this.working === 'onClickUpload') {
+                this.isOnClickUpload = true
+            }
+        }
+
     }
 };
 </script>

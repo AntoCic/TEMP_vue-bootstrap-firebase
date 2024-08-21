@@ -1,3 +1,14 @@
+<!-- 
+
+# Modalità di Utilizzo
+Questo componente è collegato a `store.js` tramite una proprietà chiamata `loading`, che dispone di due metodi: 
+- `on()` per mostrare il componente 
+- `off()` per rimuoverlo. 
+
+> **IMPORTANTE:** Se si desidera cambiare il contenuto e inserire un nuovo loader all'interno dell'elemento `.loader`, 
+> che aggiunge un overlay opaco allo schermo e visualizza il contenuto al centro.
+
+-->
 <template>
     <div class="loader text-white">
         <div class="spinner-box my-5 mx-auto">

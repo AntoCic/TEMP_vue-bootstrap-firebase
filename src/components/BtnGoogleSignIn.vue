@@ -1,3 +1,11 @@
+<!--
+# Modalità di Utilizzo
+
+```html
+ <BtnGoogleSignIn @click="functionLogin" />
+```
+
+  -->
 <template>
   <button class="btn btn-outline-secondary w-100 btn-google py-2 px-4">
 
