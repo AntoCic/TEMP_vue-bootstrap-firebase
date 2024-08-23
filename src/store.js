@@ -4,7 +4,6 @@ import Item from './models/Item.js';
 
 export const store = reactive({
     userJWT: null,
-    items: null,
 
     async onLogin() {
         this.loading.on("Altri 2s per vedere il loader");

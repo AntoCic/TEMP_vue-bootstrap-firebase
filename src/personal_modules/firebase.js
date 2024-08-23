@@ -1,8 +1,13 @@
-// firebase.js
 import axios from "axios";
 import { user } from "../user";
 
 export default class FIREBASE {
+    static build(item, required = {}, optional = {}) {
+        for (const key in { ...required, ...optional, id: '', files: '' }) {
+            this[key] = item[key] ?? required[key] ?? optional[key];
+        }
+    }
+
     static async parse(res) {
         return res;
     }

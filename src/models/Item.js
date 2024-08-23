@@ -1,4 +1,3 @@
-// Item.js
 import FIREBASE from "../personal_modules/firebase";
 
 export default class Item extends FIREBASE {
@@ -13,15 +12,14 @@ export default class Item extends FIREBASE {
         const optional = {
         };
 
-        for (const key in { ...required, ...optional, id: '', files: '' }) {
-            this[key] = item[key] ?? required[key] ?? optional[key];
-        }
+        // Costruisci l'oggetto usando il metodo build
+        FIREBASE.build.call(this, item, required, optional);
     }
 
     static async parse(res) {
         for (const key in res) {
             res[key] = new Item(res[key])
-            await res[key].getFiles()
+            // await res[key].getFiles()
         }
         return res;
     }

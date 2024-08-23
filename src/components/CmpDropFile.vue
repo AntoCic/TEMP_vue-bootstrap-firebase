@@ -1,5 +1,6 @@
 <!-- 
 # Modalità di Utilizzo
+> **Nota:** L'attributo `id` deve essere specificato, il valore deve essere univoco.
 ## Il componente può essere utilizzato in due modalità, specificate tramite l'attributo `working`:
 
 - `onUpload`: Emette una funzione al momento dell'upload dei file.
