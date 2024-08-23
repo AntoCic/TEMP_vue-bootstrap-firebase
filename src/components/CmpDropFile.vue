@@ -4,13 +4,13 @@
 
 - `onUpload`: Emette una funzione al momento dell'upload dei file.
 ```html
-<CmpDropFile working="onUpload" @onUpload="(files) => {console.log(files);}" 
+<CmpDropFile working="onUpload" @onUpload="(files) => {console.log(files);}" :id="item.id"
     fileType="img" multiple />
 ```
 
 - `onClickUpload`: Emette una funzione al click del pulsante che viene creato.
 ```html
-<CmpDropFile working="onClickUpload" @onClickUpload="(files) => {console.log(files);}" 
+<CmpDropFile working="onClickUpload" @onClickUpload="(files) => {console.log(files);}" :id="item.id" 
     fileType="img" multiple />
 ```
 
@@ -32,7 +32,7 @@ Se viene aggiunto l'attributo `multiple`, sarà possibile caricare più file con
 -->
 
 <template>
-    <label for="add-img" ref="btnDrop" :class="[`btn btn-outline-${btn} p-5`, isOnClickUpload ? 'rounded-top' : '']"
+    <label :for="id" ref="btnDrop" :class="[`btn btn-outline-${btn} p-5`, isOnClickUpload ? 'rounded-top' : '']"
         @dragover.prevent="dragover" @dragleave="dragleave" @drop.prevent="loadFile">
 
         <img v-if="files.length === 0" width="100" src="../assets/img/add_img.svg" alt="">
@@ -50,9 +50,10 @@ Se viene aggiunto l'attributo `multiple`, sarà possibile caricare più file con
             Clicca per caricare o trascina qui l'immagine. Formati supportati: {{ extensions[fileType] }}
         </p>
 
-        <input class="d-none" type="file" id="add-img" @change="loadFile" :accept="extensions[fileType]"
+        <input class="d-none" type="file" :id="id" @change="loadFile" :accept="extensions[fileType]"
             :multiple="multiple" />
     </label>
+
 
     <button v-if="isOnClickUpload" class="btn btn-outline-success m-0 w-100 rounded-bottom " @click="emitUpload">
         Carica File
@@ -64,6 +65,10 @@ export default {
     emits: ['onUpload', 'onClickUpload'],
     props: {
         working: {
+            type: String,
+            required: true
+        },
+        id: {
             type: String,
             required: true
         },
@@ -116,7 +121,7 @@ export default {
                 }
             }
             if (!this.isOnClickUpload) {
-                this.$emit('onUpload', this.files);
+                this.$emit('onUpload', this.files, this.id);
                 this.reset();
             }
         },
@@ -139,7 +144,7 @@ export default {
 
 
         emitUpload() {
-            this.$emit('onClickUpload', this.files);
+            this.$emit('onClickUpload', this.files, this.id);
             this.reset()
         }
     },
@@ -151,7 +156,6 @@ export default {
                 this.isOnClickUpload = true
             }
         }
-
     }
 };
 </script>

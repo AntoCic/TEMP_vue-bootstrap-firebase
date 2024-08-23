@@ -1,13 +1,8 @@
+// firebase.js
 import axios from "axios";
 import { user } from "../user";
 
 export default class FIREBASE {
-    static mainPaths = '';
-    // Metodo per configurare le proprietà statiche
-    static configure(mainPaths) {
-        this.mainPaths = mainPaths;
-    }
-
     static async parse(res) {
         return res;
     }
@@ -28,7 +23,7 @@ export default class FIREBASE {
             }
         })
             .then(async (res) => {
-                return await this.parse(res.data); // Usa `parse` statico
+                return await this.parse(res.data);
             })
             .catch((error) => {
                 console.error(error);
@@ -51,15 +46,26 @@ export default class FIREBASE {
             });
     }
 
-    static async update(id, newResource) {
+    async update(newResource = {}) {
+        const updateResource = {
+            ...JSON.parse(JSON.stringify(this)),
+            ...JSON.parse(JSON.stringify(newResource))
+        };
+        if (updateResource.files) {
+            updateResource.files = Object.keys(updateResource.files).reduce((acc, key) => {
+                acc[key] = updateResource.files[key].fileName;
+                return acc;
+            }, {});
+        }
+
         if (newResource != null) {
-            return await axios.put('/api/u/' + this.mainPaths, { data: newResource, id }, {
+            return await axios.put('/api/u/' + this.constructor.mainPaths, { data: updateResource, id: this.id }, {
                 headers: {
-                    "Authorization": this.getAuth()
+                    "Authorization": FIREBASE.getAuth()
                 }
             })
                 .then(async (res) => {
-                    return await this.parse(res.data);
+                    return await this.constructor.parse(res.data);
                 })
                 .catch((error) => {
                     console.error(error);
@@ -71,8 +77,16 @@ export default class FIREBASE {
         }
     }
 
-    async delete() {
-        return await axios.delete('/api/d/' + this.mainPaths, { data: { id: this.id }, headers: { "Authorization": FIREBASE.getAuth() } })
+    async delete(id = '', propPath = null) {
+        if (id === '') {
+            id = this.id
+        }
+        if (propPath !== null) {
+            propPath = '/' + propPath
+        } else {
+            propPath = ''
+        }
+        return await axios.delete('/api/d/' + this.constructor.mainPaths + propPath, { data: { id }, headers: { "Authorization": FIREBASE.getAuth() } })
             .then((res) => {
                 if (res.data.deleted) {
                     return res.data.deleted;
@@ -85,72 +99,93 @@ export default class FIREBASE {
                 return false;
             });
     }
+
+
+    async getFiles() {
+        return await axios.post(`/api/g-files/${this.id}`, { fileNames: this.files }, {
+            headers: {
+                "Authorization": FIREBASE.getAuth()
+            }
+        }).then((res) => {
+            if (res.data.urls) {
+                this.files = res.data.urls
+                return res.data.urls
+            } else {
+                console.error('Failed to get files:', res.data.message);
+                return null
+            }
+        }).catch((error) => {
+            console.error('Get files error:', error);
+            return null
+        })
+
+    }
+
+    async uploadFiles(selectedFiles) {
+        if (!selectedFiles || selectedFiles.length === 0) {
+            console.error('No file selected!');
+            return null;
+        }
+
+        try {
+            const resFiles = {}
+            for (const file of selectedFiles) {
+                // Converti il file in base64 utilizzando una Promise
+                const base64Data = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => resolve(reader.result.split(',')[1]);
+                    reader.onerror = reject;
+                });
+
+                const fileName = file.name;
+
+                // Effettua la richiesta di upload
+                const res = await axios.post(`/api/a-file/${this.id}`, {
+                    base64Data,
+                    fileName
+                }, {
+                    headers: {
+                        "Authorization": FIREBASE.getAuth()
+                    }
+                })
+
+                if (res.data) {
+                    const [key, fileData] = Object.entries(res.data)[0]
+                    resFiles[key] = fileData
+                    const files = { ...this.files, ...resFiles }
+
+                    this.files = files
+                    await this.update()
+                } else {
+                    console.error('Upload failed:', res);
+                    return null;
+                }
+            }
+            return resFiles
+        } catch (error) {
+            console.error('Upload error:', error);
+            return null;
+        }
+
+
+    }
+
+    async deleteFile(filekey) {
+        const fileName = this.files[filekey].fileName
+        axios.post(`/api/d-file/${this.id}`, { fileName }, {
+            headers: {
+                Authorization: FIREBASE.getAuth(),
+            },
+        }).then((res) => {
+            if (res.data.deleted) {
+                this.delete(filekey, this.id + '/files')
+                delete this.files[filekey]
+            } else {
+                console.error('Delete failed:', res.data);
+            }
+        }).catch((error) => {
+            console.error('Delete error:', error);
+        })
+    }
 }
-
-// loadImg() {
-//     axios.post('/api/g-files', {}, {
-//         headers: {
-//             "Authorization": this.getAuth()
-//         }
-//     }).then((res) => {
-//         if (res.data.urls) {
-//             this.images = res.data.urls
-//         } else {
-//             console.error('Failed to load images:', res.data.message);
-//         }
-//     }).catch((error) => {
-//         console.error('Load error:', error);
-//     })
-// }
-
-// async uploadImg(selectedFile) {
-
-//     if (!selectedFile) {
-//         console.error('No file selected!');
-//         return;
-//     }
-
-//     const reader = new FileReader();
-//     reader.readAsDataURL(selectedFile);
-//     reader.onload = async () => {
-//         const base64Data = reader.result.split(',')[1];
-//         const fileName = selectedFile.name;
-
-//         axios.post('/api/a-file', {
-//             base64Data,
-//             fileName
-//         }, {
-//             headers: {
-//                 "Authorization": this.getAuth()
-//             }
-//         }).then((res) => {
-//             if (res.data) {
-//                 const [[key, value]] = Object.entries(res.data);
-//                 // this.firebase.images[key] = value
-//             } else {
-//                 console.error('Upload failed:', response.data);
-//             }
-//         }).catch((error) => {
-//             console.error('Upload error:', error);
-//         });
-
-//     };
-
-// }
-
-// async deleteImg(fileName) {
-//     axios.post('/api/d-file', { fileName }, {
-//         headers: {
-//             Authorization: this.getAuth(),
-//         },
-//     }).then((res) => {
-//         if (res.data.deleted) {
-//             delete this.images[res.data.deleted]
-//         } else {
-//             console.error('Delete failed:', res.data);
-//         }
-//     }).catch((error) => {
-//         console.error('Delete error:', error);
-//     })
-// }
-// }

@@ -57,7 +57,8 @@ exports.handler = async function (event, context) {
 
       await router.DELETE('d', async () => {
         const id = router.bodyParams.id
-        if (id) {
+
+        if (id !== null || id !== undefined) {
           const res = await firebase.user.delete(id, router.pathParams);
           if (res) { router.setRes(res); }
         } else {
@@ -75,6 +76,7 @@ exports.handler = async function (event, context) {
 
       await router.POST('a-file', async () => {
         const { base64Data, fileName } = router.bodyParams;
+
         if (base64Data && fileName) {
           const res = await firebase.user.addFile(base64Data, fileName, router.pathParams);
           if (res) { router.setRes(res); }
@@ -206,9 +208,15 @@ class FIREBASE {
           try {
             const fullPath = this.getFullPath(pathParams)
             const newId = id === true ? '/' + firebase.newId() : id === false ? '' : '/' + id;
-            await firebase.database.ref(fullPath + newId).set(data);
 
-            return newId !== '' ? { [newId.substring(1)]: data } : data;
+            if (newId !== '') {
+              id = newId.substring(1)
+              await firebase.database.ref(fullPath + newId).set({ ...data, id });
+              return { [id]: { ...data, id } };
+            } else {
+              await firebase.database.ref(fullPath + newId).set(data);
+              return data
+            }
           } catch (error) {
             router.error(500, '^,^ Failed: ' + String(error));
             return false;
@@ -231,6 +239,7 @@ class FIREBASE {
         async delete(id, pathParams = []) {
           try {
             const fullPath = this.getFullPath(pathParams)
+
             await firebase.database.ref(`${fullPath}/${id}`).remove();
 
             return { deleted: id };
@@ -243,21 +252,23 @@ class FIREBASE {
 
         async getFiles(fileNames = null, pathParams = []) {
           const fullPath = this.getFullPath(pathParams);
-
           try {
             // Ottiene tutti i file con il prefisso specificato
             const [files] = await firebase.bucket.getFiles({ prefix: fullPath });
 
             const urls = {};
-
             // Mappa su ogni file e crea un oggetto con i file richiesti e i rispettivi URL
             for (const file of files) {
               const fileName = file.name.split('/').pop(); // Ottiene solo il nome del file
 
-              // Verifica se il file è tra quelli richiesti
-              if (!fileNames || fileNames.includes(fileName)) {
+              if (!fileNames) {
                 const url = await this.getUrlFile(file);
-                urls[fileName] = url;
+                urls[fileName] = { url };
+              } else if (Object.values(fileNames).includes(fileName)) {
+                const key = Object.keys(fileNames).find(key => fileNames[key] === fileName);
+                const url = await this.getUrlFile(file);
+
+                urls[key] = { fileName, url };
               }
             }
 
@@ -308,8 +319,9 @@ class FIREBASE {
             // Ottiene l'URL firmato per l'accesso al file
             const url = await this.getUrlFile(file)
 
+            const key = fullName.split('_')[0]
             // Restituisce l'URL del file caricato
-            return { [fullName]: url };
+            return { [key]: { fileName: fullName, url } };
           } catch (error) {
             router.error(500, '^,^ Failed: ' + String(error));
             return false;
@@ -342,6 +354,8 @@ class FIREBASE {
           let fullPath = this.pathName
           fullPath += this.userData ? '/' + this.userData.uid : ''
           fullPath += databasePath
+
+          console.log([fullPath]);
 
           return fullPath
         },
@@ -558,6 +572,4 @@ const router = {
   async DELETE(pathParam, ArrowFunction) {
     return await this.checkCall(pathParam, ArrowFunction, "DELETE")
   },
-
-
 }

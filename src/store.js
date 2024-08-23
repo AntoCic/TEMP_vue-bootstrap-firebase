@@ -1,18 +1,15 @@
 import { reactive } from 'vue';
 import Item from './models/Item.js';
-
-// Configura la classe Item prima di chiamare i metodi statici
-Item.configure();
+// Item.configure();
 
 export const store = reactive({
     userJWT: null,
     items: null,
 
     async onLogin() {
-        console.log('- LOGIN -');
         this.loading.on("Altri 2s per vedere il loader");
 
-        this.items = await Item.get(); // Chiamata al metodo statico `get`
+        this.item.get()
 
         setTimeout(() => {
             this.loading.off();
@@ -21,6 +18,24 @@ export const store = reactive({
 
     onLogout() {
         console.log('- LOGOUT -');
+    },
+
+    item: {
+        all: {},
+
+        async get() {
+            this.all = await Item.get();
+        },
+
+        async add(newItem) {
+            const added = await Item.add(newItem);
+            if (added) {
+                this.all = { ...this.all, ...added }
+            } else {
+                console.error('Errore adding item');
+            }
+        },
+
     },
 
     loading: {

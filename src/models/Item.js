@@ -1,32 +1,28 @@
+// Item.js
 import FIREBASE from "../personal_modules/firebase";
 
 export default class Item extends FIREBASE {
+    static mainPaths = "items"; // Definisci qui il mainPaths per firebase 
+
     constructor(item = {}) {
-        super('items');
+        super()
         const required = {
             name: null,
         };
 
         const optional = {
-            data: null,
-            id: ''
         };
 
-        for (const key in { ...required, ...optional }) {
+        for (const key in { ...required, ...optional, id: '', files: '' }) {
             this[key] = item[key] ?? required[key] ?? optional[key];
         }
-    }
-    static configure() {
-        super.configure('items'); // Configura le proprietà statiche
     }
 
     static async parse(res) {
         for (const key in res) {
-            res[key].id = key
             res[key] = new Item(res[key])
+            await res[key].getFiles()
         }
-
-        console.log(res);
         return res;
     }
 }
