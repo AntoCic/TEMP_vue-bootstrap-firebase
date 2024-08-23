@@ -87,8 +87,13 @@ export default class FIREBASE {
             propPath = ''
         }
         return await axios.delete('/api/d/' + this.constructor.mainPaths + propPath, { data: { id }, headers: { "Authorization": FIREBASE.getAuth() } })
-            .then((res) => {
+            .then(async (res) => {
                 if (res.data.deleted) {
+                    if (id === this.id) {
+                        for (const filekey in this.files) {
+                            await this.deleteFile(filekey)
+                        }
+                    }
                     return res.data.deleted;
                 } else {
                     return false;
@@ -177,9 +182,9 @@ export default class FIREBASE {
             headers: {
                 Authorization: FIREBASE.getAuth(),
             },
-        }).then((res) => {
+        }).then(async (res) => {
             if (res.data.deleted) {
-                this.delete(filekey, this.id + '/files')
+                await this.delete(filekey, this.id + '/files')
                 delete this.files[filekey]
             } else {
                 console.error('Delete failed:', res.data);
