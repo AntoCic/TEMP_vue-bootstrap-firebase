@@ -131,7 +131,11 @@ export const user = reactive({
     // Metodo per eseguire il logout
     async addUserName(userName) {
         // store.loading.on();
-        return await axios.post('/api/a/userdata', { userName }, {
+
+        const id = 'userName'
+        const data = userName
+
+        return await axios.post('/api/a/userdata', { id, data }, {
             headers: {
                 "Authorization": this.accessToken
             }

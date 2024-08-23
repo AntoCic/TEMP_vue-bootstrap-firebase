@@ -27,7 +27,7 @@ export const store = reactive({
         },
 
         async add(newItem) {
-            const added = await Item.add(newItem);
+            const added = await Item.add(newItem, true);
             if (added) {
                 this.all = { ...this.all, ...added }
             } else {

@@ -36,8 +36,8 @@ export default class FIREBASE {
             });
     }
 
-    static async add(resource) {
-        return await axios.post('/api/a/' + this.mainPaths, { data: resource, id: true }, {
+    static async add(resource, id = false) {
+        return await axios.post('/api/a/' + this.mainPaths, { data: resource, id }, {
             headers: {
                 "Authorization": this.getAuth()
             }

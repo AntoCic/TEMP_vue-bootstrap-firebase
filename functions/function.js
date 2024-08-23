@@ -209,13 +209,19 @@ class FIREBASE {
             const fullPath = this.getFullPath(pathParams)
             const newId = id === true ? '/' + firebase.newId() : id === false ? '' : '/' + id;
 
-            if (newId !== '') {
+            console.log('newId', newId);
+            if (id === true) {
               id = newId.substring(1)
               await firebase.database.ref(fullPath + newId).set({ ...data, id });
               return { [id]: { ...data, id } };
             } else {
+              console.log('data', data);
+
               await firebase.database.ref(fullPath + newId).set(data);
-              return data
+              if (id === false) {
+                return data
+              }
+              return { [id]: data }
             }
           } catch (error) {
             router.error(500, '^,^ Failed: ' + String(error));
