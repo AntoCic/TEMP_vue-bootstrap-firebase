@@ -5,11 +5,16 @@ import Item from './models/Item.js';
 export const store = reactive({
     userJWT: null,
 
+    async start() {
+        this.loading.on();
+        // INSERISCI QUA CARICAMENTI DATI PUBLICI
+        return
+    },
+
     async onLogin() {
+        // INSERISCI QUA CARICAMENTI DATI USER
+        await this.item.get()
         this.loading.on("Altri 2s per vedere il loader");
-
-        this.item.get()
-
         setTimeout(() => {
             this.loading.off();
         }, 2000);
@@ -20,10 +25,11 @@ export const store = reactive({
     },
 
     item: {
-        all: {},
+        all: null,
 
         async get() {
             this.all = await Item.get();
+            return
         },
 
         async add(newItem) {
@@ -40,12 +46,25 @@ export const store = reactive({
     loading: {
         state: false,
         msg: "",
-        on(msg = "Loading...") {
-            this.msg = msg;
-            this.state = true;
+        loadingMessages: [
+            "Prepariamo qualcosa di speciale per te… resta sintonizzato!",
+            "I nostri robot stanno dando gli ultimi ritocchi… tutto pronto in un attimo!",
+            "Stiamo mescolando un po’ di magia digitale… presto sarai dentro!",
+            "I tecnici stanno preparando un'esperienza stellare… non ci vorrà molto!",
+            "Stiamo facendo una danza di caricamento… è quasi ora di partire!",
+            "Il nostro team di gnomi digitali è al lavoro… quasi pronti!",
+            "Stiamo preparando la magia dietro le quinte… non vediamo l’ora di mostrarti!"
+        ],
+
+        on(msg = null) {
+            if (msg === null) {
+                this.msg = this.loadingMessages[Math.floor(Math.random() * this.loadingMessages.length)]
+            } else {
+                this.msg = msg
+            }
+
+            this.state = true
         },
-        off() {
-            this.state = false;
-        },
+        off() { this.state = false },
     },
 });

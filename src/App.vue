@@ -64,6 +64,7 @@ export default {
     }
   },
   mounted() {
+    await this.store.start()
     this.user.checkLogged()
   },
 }
