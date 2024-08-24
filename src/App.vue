@@ -43,7 +43,7 @@ export default {
       }
     },
     '$route.name'(newRoute, oldRoute) {
-      if (newRoute && newRoute !== oldRoute) {
+      if (newRoute && newRoute !== oldRoute && user.accessToken !== null) {
         this.checkRoute()
       }
     },

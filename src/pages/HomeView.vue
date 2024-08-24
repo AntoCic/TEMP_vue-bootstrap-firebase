@@ -78,7 +78,6 @@ export default {
       store,
       count: 0,
       newItem: '',
-      Files: [],
     };
   },
   methods: {

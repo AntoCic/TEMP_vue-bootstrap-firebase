@@ -19,7 +19,7 @@ export default class Item extends FIREBASE {
     static async parse(res) {
         for (const key in res) {
             res[key] = new Item(res[key])
-            // await res[key].getFiles()
+            await res[key].getFiles()
         }
         return res;
     }
