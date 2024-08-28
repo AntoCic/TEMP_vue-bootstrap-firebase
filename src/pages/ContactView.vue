@@ -13,7 +13,7 @@
           </div>
         </div>
         <div class="col-md-4">
-          <img src="/img/foto_profilo.png" class="img-fluid rounded object-fit-cover h-100"
+          <img src="https://raw.githubusercontent.com/AntoCic/AntoCic/main/img/foto_profilo.png" class="img-fluid rounded object-fit-cover h-100"
             alt="foto profilo personale">
         </div>
       </div>

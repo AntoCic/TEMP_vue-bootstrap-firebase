@@ -41,7 +41,7 @@ exports.handler = async function (event, context) {
           const res = await firebase.user.add(data, router.pathParams, id);
           if (res) { router.setRes(res); }
         } else {
-          router.error(400, '^,^ Missing id or data');
+          router.error(400, '|I| Missing id or data');
         }
       })
 
@@ -51,7 +51,7 @@ exports.handler = async function (event, context) {
           const res = await firebase.user.update(id, data, router.pathParams);
           if (res) { router.setRes(res); }
         } else {
-          router.error(400, '^,^ Missing id or data');
+          router.error(400, '|I| Missing id or data');
         }
       })
 
@@ -62,7 +62,7 @@ exports.handler = async function (event, context) {
           const res = await firebase.user.delete(id, router.pathParams);
           if (res) { router.setRes(res); }
         } else {
-          router.error(400, '^,^ Missing id');
+          router.error(400, '|I| Missing id');
         }
       })
 
@@ -81,7 +81,7 @@ exports.handler = async function (event, context) {
           const res = await firebase.user.addFile(base64Data, fileName, router.pathParams);
           if (res) { router.setRes(res); }
         } else {
-          router.error(400, '^,^ Missing base64Data or fileName');
+          router.error(400, '|I| Missing base64Data or fileName');
         }
       })
 
@@ -92,7 +92,7 @@ exports.handler = async function (event, context) {
           if (res) { router.setRes(res); }
 
         } else {
-          router.error(400, '^,^ Missing fileName');
+          router.error(400, '|I| Missing fileName');
         }
       })
 
@@ -199,7 +199,7 @@ class FIREBASE {
             const snapshot = await firebase.database.ref(fullPath).once('value');
             return snapshot.val() || {};
           } catch (error) {
-            router.error(500, '^,^ Failed: ' + String(error));
+            router.error(500, '|I| Failed: ' + String(error));
             return false;
           }
         },
@@ -224,7 +224,7 @@ class FIREBASE {
               return { [id]: data }
             }
           } catch (error) {
-            router.error(500, '^,^ Failed: ' + String(error));
+            router.error(500, '|I| Failed: ' + String(error));
             return false;
           }
         },
@@ -237,7 +237,7 @@ class FIREBASE {
 
             return content;
           } catch (error) {
-            router.error(500, '^,^ Failed: ' + String(error));
+            router.error(500, '|I| Failed: ' + String(error));
             return false;
           }
         },
@@ -250,7 +250,7 @@ class FIREBASE {
 
             return { deleted: id };
           } catch (error) {
-            router.error(500, '^,^ Failed: ' + String(error));
+            router.error(500, '|I| Failed: ' + String(error));
             return false;
           }
 
@@ -281,7 +281,7 @@ class FIREBASE {
             // Restituisce gli URL dei file trovati
             return { urls };
           } catch (error) {
-            router.error(500, '^,^ Failed: ' + String(error));
+            router.error(500, '|I| Failed: ' + String(error));
             return false;
           }
         },
@@ -308,7 +308,7 @@ class FIREBASE {
             };
             const contentType = contentTypes[extension];
             if (!contentType) {
-              router.error(500, '^,^ Failed: ContentType');
+              router.error(500, '|I| Failed: ContentType');
               return false;
             }
 
@@ -329,7 +329,7 @@ class FIREBASE {
             // Restituisce l'URL del file caricato
             return { [key]: { fileName: fullName, url } };
           } catch (error) {
-            router.error(500, '^,^ Failed: ' + String(error));
+            router.error(500, '|I| Failed: ' + String(error));
             return false;
           }
 
@@ -344,7 +344,7 @@ class FIREBASE {
 
             return { deleted: fileName };
           } catch (error) {
-            router.error(500, '^,^ Failed: ' + String(error));
+            router.error(500, '|I| Failed: ' + String(error));
             return false;
           }
         },
@@ -388,7 +388,7 @@ class FIREBASE {
             this.userData = await admin.auth().getUser(decodedToken.uid);
             return true;
           } catch (error) {
-            router.error(401, '^,^ Unauthorized');
+            router.error(401, '|I| Unauthorized');
             return false;
           }
         };
@@ -459,8 +459,8 @@ const router = {
     if (this.event && !this.stateError) {
       return true
     } else {
-      console.error('ERROR 500: non hai inizializzato il router, SCRIVI: router.start(event);');
-      this.error(500, '^,^ ERROR 500: non hai inizializzato il router, SCRIVI: router.start(event);')
+      console.error('|I| ERROR 500: non hai inizializzato il router, SCRIVI: router.start(event);');
+      this.error(500, '|I| ERROR 500: non hai inizializzato il router, SCRIVI: router.start(event);')
       return false
     }
   },
